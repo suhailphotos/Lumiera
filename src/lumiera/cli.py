@@ -4,6 +4,8 @@ import os
 import sys
 import click, pkgutil, importlib
 from pathlib import Path
+from lumiera.export.project import export_project
+from lumiera.backup.jobs import backup_job, restore_job
 
 
 def get_dropbox_dir() -> Path:
@@ -33,12 +35,6 @@ CONFIG_PATH = get_dropbox_dir() / 'matrix' / 'backups' / 'backup_config.json'
 def main():
     """Lumiera – swiss‑army CLI for all one‑off tools"""
     pass
-
-# auto‑import modules that expose a `cli` Click group
-for _, mod_name, _ in pkgutil.walk_packages(__path__, prefix=__name__ + '.'):
-    mod = importlib.import_module(mod_name)
-    if hasattr(mod, 'cli') and isinstance(getattr(mod, 'cli'), click.core.BaseCommand):
-        main.add_command(getattr(mod, 'cli'))
 
 
 @main.command()
@@ -75,7 +71,7 @@ def export_project_cli(root, output_path, include_env, include_list):
     """
     Exports the folder structure and all relevant project files for context.
     """
-    from pythonkitchen.project_export import export_project
+    from lumiera.export.project import export_project
     # build a set of overrides (strip whitespace, ignore empty)
     overrides = {name.strip() for name in include_list.split(",") if name.strip()}
     export_project(
@@ -92,7 +88,7 @@ def pypi_availability(names, build):
     """
     Checks PyPI for name availability, optionally attempts to publish a dummy package to 'lock' the first available name.
     """
-    from pythonkitchen.pypiAvailablity import check_pypi_availability, try_publish_first_available
+    from lumiera.pypi.availability import check_pypi_availability, try_publish_first_available
 
     # Parse names
     candidates = [n.strip() for n in names.split(",") if n.strip()]
