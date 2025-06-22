@@ -1,0 +1,57 @@
+{
+  "name": "Machine Learning in VFX",
+  "full_description": "COURSE BREAKDOWN This course covers the fundamentals of Python, Git, and machine learning, followed by Al-driven data extraction, visualization, and model training in Python, Houdini and Unity. You'll explore computer vision, Al animation, generative 3D techniques, and reinforcement learning. In the final weeks, you'll dive into ML pipelines, neural style transfer, and Al",
+  "short_description": "This course covers the fundamentals of Python, Git, and machine learning, Al-driven data extraction, visualization, and model training in Python, Houdini, and Unity. You'll also explore computer vision, Al animation, generative 3D techniques, reinforcement learning, ML pipelines, neural style transfer, and Al.",
+  "chapters": [
+    {
+      "name": "Week 1",
+      "full_description": "Tools -Websites resources -OS -Computer Architecture refresher -Data structures and algorithms -Git -Python refresher -Numpy refresher -Jax overview -Design patterns - SOLID principles",
+      "short_description": "Week 1 covers Tools, Websites resources, OS, Computer Architecture refresher, Data structures and algorithms, Git, Python refresher, Numpy refresher, Jax overview, Design patterns, SOL"
+    },
+    {
+      "name": "Week 2",
+      "full_description": "Data libraries -Basic ML and traditional algorithms -Houdini Developer Environment setup -Perform predictions in Houdini -Exercises -Data extraction from Houdini for real applications -Data ingestion in Houdini",
+      "short_description": "Week 2 covers Data Libraries, Basic ML and traditional algorithms, Houdini Developer Environment setup, performing predictions in Houdini, exercises, data extraction from Houdini for real applications, and data ingestion in"
+    },
+    {
+      "name": "Week 3",
+      "full_description": "Data visualization -Databases -Houdini custom HDA for data I/O -Houdini home pipeline for data and ML models - MNIST - Pytorch in Houdini -Al based asset QC implementation -Houdini node prediction system",
+      "short_description": "Week 3 covers data visualization, databases, Houdini custom HDA for data I/O, Houdini home pipeline for data and ML models, MNIST, Pytorch in Houdini, AI-based"
+    },
+    {
+      "name": "Week 4",
+      "full_description": "Streamlit -Tensorboard -Hugging face -Use off-the-shelf models -Models for the pipeline -Fine tuning and transfer learning -Al automation concepts -CNNs",
+      "short_description": "Week 4 covers Streamlit, Tensorboard, Hugging Face, using off-the-shelf models, models for the pipeline, fine-tuning and transfer learning, AI automation concepts, and CNNs"
+    },
+    {
+      "name": "Week 5",
+      "full_description": "Docker -Intro to Computer vision - Mediapipe intro -Mediapipe data extraction for DCCs -Facemesh -Pose prediction -Al animation -Animation Prediction",
+      "short_description": "Week 5 covers Docker, Intro to Computer vision, Mediapipe intro, Mediapipe data extraction for DCCs, Facemesh, Pose prediction, Al animation, Animation Prediction."
+    },
+    {
+      "name": "Week 6",
+      "full_description": "Depth estimation -intro to point clouds - Geometry mesh algorithms -Prompt based 3d geometry generation -Prompt based texture generation -Deepfakes -Ai for 3D development",
+      "short_description": "Week 6 covers depth estimation, intro to point clouds, geometry mesh algorithms, prompt based 3D geometry generation, prompt based texture generation, deepfakes, AI for 3D development."
+    },
+    {
+      "name": "Week 7",
+      "full_description": "Intro to Reinforcement Learning -intro to openai gym -RL acrobot -retro games reinforcement learning Make Al play games -Houdini RL agent prediction - Reinforcement learning examples",
+      "short_description": "Week 7 covers Intro to Reinforcement Learning, intro to openai gym, RL acrobot, retro games reinforcement learning, Make Al play games, Houdini RL agent prediction, Reinforcement learning examples"
+    },
+    {
+      "name": "Week 8",
+      "full_description": "Intro to LLMs -Houdini Al bot assistant - Fine tune a LLM for in house documentation -Transformers in Al -Al assistants for the pipeline -LLM techniques -Synthetic Data",
+      "short_description": "Week 8 covers Intro to LLMs, Houdini AI bot assistant, Fine tuning a LLM for in-house documentation, Transformers in AI, AI assistants for the pipeline, LLM techniques,"
+    },
+    {
+      "name": "Week 9",
+      "full_description": "Fast API -Blob storage -Al based clustering simulation -Traditional ML algorithms ML algorithms in Unity ML algorithms in Houdini -Home Pipeline",
+      "short_description": "Week 9 covers Fast API, Blob storage, AI-based clustering simulation, Traditional ML algorithms, ML algorithms in Unity, ML algorithms in Houdini, Home Pipeline."
+    },
+    {
+      "name": "Week 10",
+      "full_description": "Intro to Gaussian Splatting -Eye and face tracker -YOLO -Text detection -Color threshold detector -Neural style transfer - System design -MLOPS -Cloud Services applications for game development and VFX workflows.",
+      "short_description": "Week 10 covers Intro to Gaussian Splatting, Eye and face tracker, YOLO, Text detection, Color threshold detector, Neural style transfer, System design, MLOPS, Cloud Services applications"
+    }
+  ]
+}
