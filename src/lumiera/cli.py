@@ -2,9 +2,8 @@
 
 import os
 import sys
-import click
+import click, pkgutil, importlib
 from pathlib import Path
-from pythonkitchen.backup_jobs import backup_job, restore_job
 
 
 def get_dropbox_dir() -> Path:
@@ -32,10 +31,15 @@ CONFIG_PATH = get_dropbox_dir() / 'matrix' / 'backups' / 'backup_config.json'
 
 @click.group()
 def main():
-    """
-    PythonKitchen CLI: backup and restore tasks defined in config.
-    """
+    """Lumiera – swiss‑army CLI for all one‑off tools"""
     pass
+
+# auto‑import modules that expose a `cli` Click group
+for _, mod_name, _ in pkgutil.walk_packages(__path__, prefix=__name__ + '.'):
+    mod = importlib.import_module(mod_name)
+    if hasattr(mod, 'cli') and isinstance(getattr(mod, 'cli'), click.core.BaseCommand):
+        main.add_command(getattr(mod, 'cli'))
+
 
 @main.command()
 @click.option('--job', 'job_name', required=True, help='Name of the job defined in config.')
