@@ -7,7 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 
 UDEMY_EMAIL = 'suhailece@gmail.com'
-UDEMY_PASSWORD = 'hoqpyq-zutrep-2dUjwu'
+UDEMY_PASSWORD = 'xxxxx-xxxxxx-xxxxx'
 COURSE_URL = 'https://www.udemy.com/course/advanced-langchain-techniques-mastering-rag-applications/learn/'
 
 driver = webdriver.Chrome()
