@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# ansi_tuner_raw.py — arrow-compat + fallback keys + clearer hints
+# ansi_tuner_raw.py — combo previews + all-background grid + cleaner swatches
 import sys, os, re, colorsys, termios, tty, select
 
 PALETTE_FILE = "palette.txt"
@@ -50,61 +50,88 @@ RST = sgr(0)
 def fg_code(i): return 30+i if i<8 else 90+(i-8)
 def bg_code(i): return 40+i if i<8 else 100+(i-8)
 
-FG = {
-    "comment": sgr(90), "keyword": sgr(34), "string":  sgr(32),
-    "number":  sgr(36), "ident":   sgr(37), "punct":   sgr(37),
-    "warning": sgr(33), "error":   sgr(31),
-}
-STYLE = {"bold": sgr(1), "dim": sgr(2), "italic": sgr(3), "underline": sgr(4)}
+# basic “semantic” roles so the mini snippets react to palette indices
+def roles_from_indices(sel_idx, comp_idx):
+    return {
+        "comment": fg_code(8),           # bright black by default for comments
+        "keyword": fg_code(sel_idx),     # selected color drives keywords
+        "ident":   fg_code(sel_idx),     # and idents
+        "string":  fg_code(comp_idx),    # companion is strings
+        "number":  fg_code(comp_idx),    # and numbers
+        "punct":   fg_code(7),           # keep punctuation near white for legibility
+    }
 
-def colorize_demo():
+STYLE = {"bold":"1", "dim":"2", "italic":"3", "underline":"4"}
+
+def seg(text, *codes):
+    return "".join(sgr(c) for c in codes if c) + text + RST
+
+def mini_code(sel_idx, comp_idx, flip=False):
+    R = roles_from_indices(comp_idx, sel_idx) if flip else roles_from_indices(sel_idx, comp_idx)
     out=[]
     # Python
-    out += [FG["comment"]+"# Python"+RST+"\n"]
-    out += [FG["keyword"]+"def"+RST+" "+FG["ident"]+"fib"+RST+FG["punct"]+"("+RST+FG["ident"]+"n"+RST+FG["punct"]+": "+RST+FG["keyword"]+"int"+RST+FG["punct"]+") -> "+RST+FG["keyword"]+"int"+RST+":\n"]
-    out += ["    "+FG["comment"]+"# comment: naive recursion"+RST+"\n"]
-    out += ["    "+FG["keyword"]+"return"+RST+" "+FG["number"]+"1"+RST+" "+FG["keyword"]+"if"+RST+" "+FG["ident"]+"n"+RST+" < "+FG["number"]+"2"+RST+" "+FG["keyword"]+"else"+RST+" "+
-            FG["ident"]+"fib"+RST+FG["punct"]+"("+RST+FG["ident"]+"n"+RST+"-"+FG["number"]+"1"+RST+FG["punct"]+")"+RST+" + "+
-            FG["ident"]+"fib"+RST+FG["punct"]+"("+RST+FG["ident"]+"n"+RST+"-"+FG["number"]+"2"+RST+FG["punct"]+")"+RST+"\n\n"]
-    # Shell
-    out += [FG["comment"]+"# Shell"+RST+"\n"]
-    out += [FG["comment"]+"# "+RST+FG["ident"]+"$"+RST+" "+FG["ident"]+"git"+RST+" "+FG["ident"]+"status"+RST+" && "+FG["ident"]+"echo"+RST+" "+FG["string"]+"\"ok\""+RST+"\n\n"]
+    out += [seg("# Python\n", R["comment"])]
+    out += [seg("def ", R["keyword"])+seg("fib", R["ident"])+seg("(",)+seg("n", R["ident"])+seg(": ")+seg("int", R["keyword"])+seg(") -> ")+seg("int", R["keyword"])+seg(":\n")]
+    out += ["    "+seg("# comment: naive recursion\n", R["comment"])]
+    out += ["    "+seg("return ", R["keyword"])+seg("1", R["number"])+seg(" if ", R["keyword"])+seg("n", R["ident"])+seg(" < ")+seg("2", R["number"])+seg(" else ", R["keyword"]) +
+            seg("fib", R["ident"])+seg("(")+seg("n", R["ident"])+seg("-")+seg("1", R["number"])+seg(")")+seg(" + ")+
+            seg("fib", R["ident"])+seg("(")+seg("n", R["ident"])+seg("-")+seg("2", R["number"])+seg(")")+"\n\n"]
     # JSON
-    out += [FG["comment"]+"# JSON"+RST+"\n"]
-    out += [FG["punct"]+"{ "+RST+FG["string"]+"\"name\""+RST+FG["punct"]+": "+RST+FG["string"]+"\"catppuccin\""+RST+FG["punct"]+", "+RST+
-            FG["string"]+"\"flavor\""+RST+FG["punct"]+": "+RST+FG["string"]+"\"mocha\""+RST+FG["punct"]+", "+RST+
-            FG["string"]+"\"ok\""+RST+FG["punct"]+": "+RST+FG["keyword"]+"true"+RST+" "+FG["punct"]+"}"+RST+"\n\n"]
-    # C
-    out += ["/* C */\n"]
-    out += [FG["keyword"]+"#include"+RST+" "+FG["punct"]+"<"+RST+FG["ident"]+"stdio.h"+RST+FG["punct"]+">"+RST+"\n"]
-    out += [FG["keyword"]+"int"+RST+" "+FG["ident"]+"main"+RST+FG["punct"]+"("+RST+FG["keyword"]+"void"+RST+FG["punct"]+")"+RST+" {\n"]
-    out += ["    "+FG["ident"]+"printf"+RST+FG["punct"]+"("+RST+FG["string"]+"\"Hello, \""+RST+" "+
-            STYLE["italic"]+FG["ident"]+"italic"+RST+" "+STYLE["bold"]+FG["ident"]+"bold"+RST+" "+
-            STYLE["underline"]+FG["ident"]+"underline"+RST+FG["punct"]+"\\n\""+RST+FG["punct"]+");"+RST+"\n"]
-    out += ["}\n"]
+    out += [seg("# JSON\n", R["comment"])]
+    out += [seg("{ ")+seg("\"name\"", R["string"])+seg(": ")+seg("\"catppuccin\"", R["string"])+seg(", ")+
+            seg("\"flavor\"", R["string"])+seg(": ")+seg("\"mocha\"", R["string"])+seg(", ")+
+            seg("\"ok\"", R["string"])+seg(": ")+seg("true", R["keyword"])+seg(" }")+ "\n"]
     return "".join(out)
 
 def clear(): sys.stdout.write("\033[H\033[2J"); sys.stdout.flush()
 
-def show(pal_hex,hsl,idx,chan,link_brights):
+def show(pal_hex,hsl,idx,chan,link_brights, comp_idx):
     h,s,l = hsl[idx]
     clear()
-    print(f"idx={idx:02d} #{pal_hex[idx]} HSL={int(h*360)}° {int(s*100)}% {int(l*100)}% link_brights={'ON' if link_brights else 'OFF'}")
+    print(f"idx={idx:02d} #{pal_hex[idx]}   companion={comp_idx:02d} #{pal_hex[comp_idx]}   HSL={int(h*360)}° {int(s*100)}% {int(l*100)}%   link_brights={'ON' if link_brights else 'OFF'}")
     chan_lbl = " ".join(f"[{c}]" if i==chan else c for i,c in enumerate("HSL"))
     print("Channels:", chan_lbl)
-    print("(h/l = prev/next channel, j/k = small -, + ; J/K = big -, + ; ,/. = prev/next color)")
-    print()
-    # Swatches
+    print("(h/l or ←/→ channel • j/k or ↓/↑ step • J/K or PgDn/PgUp big • ,/. prev/next color • {/} companion • s save • space link-brights • q quit)\n")
+
+    # Swatches (two rows, per index: BG████ FG████)
     wide = "█████"
     for row in (range(0,8),range(8,16)):
-        print(" ".join(f"{sgr(bg_code(i))}{wide}{RST}{sgr(fg_code(i))}{wide}{RST}" for i in row))
+        line=[]
+        for i in row:
+            line.append(f"{sgr(bg_code(i))}{wide}{RST}{sgr(fg_code(i))}{wide}{RST}")
+        print(" ".join(line))
     print()
-    # Attributes (spaced)
+
+    # Attributes per color (wider, spaced)
     def row_for(name, code):
         blocks = " ".join(f"{sgr(code)}{sgr(fg_code(i))}{wide}{RST}" for i in range(16))
-        print(f"{name:<10}{blocks}\n")
-    row_for("Normal",""); row_for("Bold","1"); row_for("Dim","2"); row_for("Italic","3"); row_for("Underline","4")
-    print(colorize_demo())
+        print(f"{name:<10}{blocks}")
+    for nm,cd in [("Normal",""),("Bold","1"),("Dim","2"),("Italic","3"),("Underline","4")]:
+        row_for(nm, cd)
+    print()
+
+    # Pair style grid: fg=selected on bg=companion, then inverse (short words show style)
+    sample = ["Aa", seg("Aa","1"), seg("Aa","2"), seg("Aa","3"), seg("Aa","4")]
+    print(f"Pair styles  fg={idx:02d} on bg={comp_idx:02d}  |  fg={comp_idx:02d} on bg={idx:02d}")
+    left  = " ".join(f"{sgr(fg_code(idx))}{sgr(bg_code(comp_idx))}{t}{RST}" for t in sample)
+    right = " ".join(f"{sgr(fg_code(comp_idx))}{sgr(bg_code(idx))}{t}{RST}" for t in sample)
+    print(left+"    |    "+right+"\n")
+
+    # Mini code colored two ways (selected vs companion swapped)
+    print("Mini code  (keywords/idents = selected, strings/comments = companion):")
+    print(mini_code(idx, comp_idx))
+    print("Mini code  (flipped roles):")
+    print(mini_code(idx, comp_idx, flip=True))
+
+    # All-backgrounds grid: selected color text on every bg 0..15 (styles)
+    print("\nSelected color on all backgrounds:")
+    for b in range(16):
+        cells = [
+            "Aa", seg("Aa","1"), seg("Aa","2"), seg("Aa","3"), seg("Aa","4")
+        ]
+        row = " ".join(f"{sgr(bg_code(b))}{sgr(fg_code(idx))}{t}{RST}" for t in cells)
+        print(f"bg {b:02d}: {row}")
+    print()
 
 def read_key():
     # returns: 'UP','DN','LT','RT','PGUP','PGDN' or single chars
@@ -112,12 +139,10 @@ def read_key():
     if not dr: return None
     ch=sys.stdin.read(1)
     if ch!='\x1b': return ch
-    # Possible CSI or SS3
-    # CSI: ESC [ A/B/C/D/5~/6~
-    # SS3: ESC O A/B/C/D
+    # CSI or SS3
     if select.select([sys.stdin],[],[],0.01)[0]:
         ch2=sys.stdin.read(1)
-        if ch2=='[':  # CSI
+        if ch2=='[':
             ch3=sys.stdin.read(1)
             if   ch3=='A': return 'UP'
             elif ch3=='B': return 'DN'
@@ -125,7 +150,7 @@ def read_key():
             elif ch3=='D': return 'LT'
             elif ch3=='5' and sys.stdin.read(1)=='~': return 'PGUP'
             elif ch3=='6' and sys.stdin.read(1)=='~': return 'PGDN'
-        elif ch2=='O':  # SS3
+        elif ch2=='O':
             ch3=sys.stdin.read(1)
             if   ch3=='A': return 'UP'
             elif ch3=='B': return 'DN'
@@ -139,6 +164,7 @@ def main():
         pal=load_palette(PALETTE_FILE) or CATPPUCCIN_MOCHA_ANSI[:]
         hsl=[list(hex_to_hsl(hx)) for hx in pal]
         idx,chan,link_brights=4,2,False
+        comp_idx = 5  # start with magenta as companion
 
         def recompute():
             eff=hsl[:]
@@ -147,7 +173,7 @@ def main():
             pal_hex=[hsl_to_hex(tuple(v)) for v in eff[:16]]
             apply_palette(pal_hex); return pal_hex
 
-        pal_hex=recompute(); show(pal_hex,hsl,idx,chan,link_brights)
+        pal_hex=recompute(); show(pal_hex,hsl,idx,chan,link_brights,comp_idx)
 
         def adjust(amount_big=False, sign=+1):
             step_small = [1/360, 0.01, 0.02]
@@ -169,13 +195,15 @@ def main():
             elif k == ' ': link_brights = not link_brights
             elif k in (',','<'): idx=(idx-1)%16
             elif k in ('.','>'): idx=(idx+1)%16
+            elif k in ('{',): comp_idx=(comp_idx-1)%16
+            elif k in ('}',): comp_idx=(comp_idx+1)%16
             elif k in '0123456789abcdefABCDEF': idx=int(k,16)
             elif k in ('LT','h','H'): chan=(chan-1)%3
             elif k in ('RT','l','L'): chan=(chan+1)%3
             elif k in ('UP','k','K','PGUP'): adjust(amount_big=(k in ('K','PGUP')), sign=+1)
             elif k in ('DN','j','J','PGDN'): adjust(amount_big=(k in ('J','PGDN')), sign=-1)
 
-            pal_hex=recompute(); show(pal_hex,hsl,idx,chan,link_brights)
+            pal_hex=recompute(); show(pal_hex,hsl,idx,chan,link_brights,comp_idx)
 
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old); print(RST,end="")

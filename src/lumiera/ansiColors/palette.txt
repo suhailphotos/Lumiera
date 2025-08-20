@@ -1,0 +1,17 @@
+# palette.txt — 16 ANSI colors hex RRGGBB per line
+1e1e2e
+f38ba6
+86bea3
+f8e1ae
+89b4fa
+9c7ac5
+94e1d5
+cbd4f4
+454759
+eb9eaa
+9fe0cf
+ffe5b8
+b3c7ff
+cbbff2
+b3f1e3
+ffffff
