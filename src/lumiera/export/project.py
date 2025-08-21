@@ -9,7 +9,7 @@ SKIP_TREE_FILES = {'__pycache__', 'dist', '.git'}
 # files to hide in the *content* dump (dump_code_files), but still show in the tree
 SKIP_CONTENT_NAMES = {'.env', 'README.md'}
 
-INCLUDE_EXTS = {'.py', '.json', '.yml', '.yaml', '.toml', '.txt', '.md', '.lua', '.sh', '.zsh'}
+INCLUDE_EXTS = {'.py', '.json', '.yml', '.yaml', '.toml', '.txt', '.md', '.lua', '.sh', '.zsh', '.cfg'}
 INCLUDE_NAMES = {'Dockerfile', 'requirements.txt', 'pyproject.toml', '.env'}
 
 def build_tree(root, overrides=None):
