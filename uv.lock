@@ -620,7 +620,7 @@ wheels = [
 
 [[package]]
 name = "lumiera"
-version = "0.1.9"
+version = "0.1.12"
 source = { editable = "." }
 dependencies = [
     { name = "beautifulsoup4" },
